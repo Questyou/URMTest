@@ -7,45 +7,85 @@ import xlrd
 workbook  = xlwt.Workbook()
 rworkbook = xlrd.open_workbook('E:\env.xls')
 temp = workbook.add_sheet('Temperture')
-# onlytemp = workbook.add_sheet('onlytemp')
+
 # 表第一个单元
-nub00 = rworkbook.sheet_by_name('Temperture').cell(0, 0).value
+# 请求指标
+def getData():
+    res = requests.post('http://172.17.13.96:16380/envDevice/getEnvIndicatorByMonitorDeviceIds', data= {"type":"1,2"})
+    resdatalist = res.json()['data']
+    print(resdatalist)
+    return resdatalist
 
-res = requests.post('http://172.17.13.96:16380/envDevice/getEnvIndicatorByMonitorDeviceIds', data= {"type":"1,2"})
+def getEnvName(datalist):
+    envname = datalist[0]['name']
+    print(envname)
+    return envname
 
-# print(res.status_code)
+def getEnvValuesList(valeslist):
 
-# resjson  = res.json()
-resdatalist = res.json()['data']
-print(resdatalist)
-
-# 做参考
-ll = list(resdatalist[0].keys())
-ld = list(resdatalist[0].values())
-print(ll)
-print(ld)
-for i in range(len(ll)):
-    print(ll[i])
-    print(ld[i])
-    temp.write(0, i, ll[i])
-    temp.write(1, i, str(ld[i]))
-
-indicdata = resdatalist[0]['indicatorList']
-
-# 写表头
-def wtittle():
-    tittlelist = list(indicdata[0].keys())
-    print(tittlelist)
-    for i in range(len(tittlelist)):
-        temp.write(2, i, tittlelist[i])
-
-if str(nub00) == 'name':
-    print("表头写好了")
-else:
-    wtittle()
+    envvaluesList = valeslist[0]['indicatorList']
+    listornot = type(envvaluesList)
+    print(listornot)
+    return envvaluesList
 
 
-indicdatatil = list(indicdata[0].keys())
+
+# def getEnvTittle(valueslist):
+#     d = [ ]
+#     for x in range(len(envvalueslist)):
+#         envvalueslistjson = envvalueslist[x]
+#         # namelist = envvalueslist.keys()
+#         # d[x] = str(decoded_json['name'])
+#         decoded_json = json.loads(envvalueslistjson)
+#         print(type(decoded_json))
+#         print(d[x])
+
+workbook.save(r'E:\env.xls')
+
+
+
+
+envdata = getData()
+envname = getEnvName(envdata)
+envvalueslist = getEnvValuesList(envdata)
+# getEnvTittle(envvalueslist)
+abc = envvalueslist[0]
+print(abc)
+ornot = type(abc)
+decoded_json = json.loads(abc)
+
+print(ornot)
+
+
+# # 做参考
+# ll = list(resdatalist[0].keys())
+# ld = list(resdatalist[0].values())
+# print(ll)
+# print(ld)
+# for i in range(len(ll)):
+#     print(ll[i])
+#     print(ld[i])
+#     temp.write(0, i, ll[i])
+#     temp.write(1, i, str(ld[i]))
+#
+# indicdata = resdatalist[0]['indicatorList']
+#
+# nub00 = str(rworkbook.sheet_by_name('Temperture').cell(rworkbook, 0, 0).value)
+# print(nub00)
+# # 写表头
+# def wtittle():
+#     tittlelist = list(indicdata[0].keys())
+#     print(tittlelist)
+#     for i in range(len(tittlelist)):
+#         temp.write(2, i, tittlelist[i])
+#
+# if nub00 == 'name':
+#     print("表头写好了")
+# else:
+#     wtittle()
+
+
+# indicdatatil = list(indicdata[0].keys())
 #
 # for i in range(len(indicdata)):
 #     devname = indicdata[i]['name']
@@ -63,7 +103,7 @@ indicdatatil = list(indicdata[0].keys())
     # temp.write(1, i, int(ld['id']))
 # print(ll[0])
 
-workbook.save('E:\env.xls')
+
 
 # resdataindicatoerlist = resdatalist[0]['indicatorList']
 # zhibiao = len(resdataindicatoerlist)
