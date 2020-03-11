@@ -7,11 +7,12 @@ import xlrd
 workbook  = xlwt.Workbook()
 rworkbook = xlrd.open_workbook('E:\env.xls')
 
-
+wworkbook = workbook.add_sheet('Temperture', cell_overwrite_ok=True)
 # 表第一个单元
 # 请求指标
 def getData():
-    res = requests.post('http://172.17.13.96:16380/envDevice/getEnvIndicatorByMonitorDeviceIds', data= {"type":"1,2"})
+    envurl = 'http://172.17.13.96:16380/envDevice/getEnvIndicatorByMonitorDeviceIds'
+    res = requests.post(envurl, data= {"type":"1,2"})
     resdatalist = res.json()['data']
     print(resdatalist)
     return resdatalist
@@ -21,9 +22,8 @@ def getEnvName(datalist, x):
     # print(envname)
     return envname
 
-def getEnvValuesList(valeslist):
-
-    envvaluesList = valeslist[0]['indicatorList']
+def getEnvValuesList(valeslist , x ):
+    envvaluesList = valeslist[x]['indicatorList']
     # listornot = type(envvaluesList)
     # print(listornot)
     return envvaluesList
@@ -34,13 +34,12 @@ def whitchtype(data):
     whitchtype = type(datawhitchtype)
     print(whitchtype)
 
-def getEnvvalues(valueslist):
+def getEnvvalues(valueslist, line):
     whitchtype(valueslist)
-    wworkbook = workbook.add_sheet('Temperture', cell_overwrite_ok=True)
-    d = [ ]
-    i = 1
+    # d = [ ]
+    i = line
+    j = 0
     for x in range(len(envvalueslist)):
-        j = 0
         envvalueslistdict = envvalueslist[x]
         # whitchtype(envvalueslistdict)
         envvalueslistdict.items()
@@ -52,18 +51,25 @@ def getEnvvalues(valueslist):
             # print(key)
             # print(value)
             j += 2
-        i += 1
-    workbook.save(r'E:\env.xls')
+        j += 1
+
 
         # namelist = envvalueslist.keys()
         # d[x] = str(decoded_json['name'])
 
 
 envdata = getData()
-envname = getEnvName(envdata, 1)
-print(envname)
-envvalueslist = getEnvValuesList(envdata)
-getEnvvalues(envvalueslist)
+# envname = getEnvName(envdata, 0)
+# print(envname)
+
+for i in range(len(envdata)):
+    wenvname = getEnvName(envdata , i)
+
+    envvalueslist = getEnvValuesList(envdata , i)
+    getEnvvalues(envvalueslist , i)
+    print(envvalueslist)
+
+workbook.save(r'E:\env.xls')
 
 
 
