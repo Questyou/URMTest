@@ -6,7 +6,7 @@ import xlrd
 
 workbook  = xlwt.Workbook()
 rworkbook = xlrd.open_workbook('E:\env.xls')
-temp = workbook.add_sheet('Temperture')
+
 
 # 表第一个单元
 # 请求指标
@@ -16,45 +16,56 @@ def getData():
     print(resdatalist)
     return resdatalist
 
-def getEnvName(datalist):
-    envname = datalist[0]['name']
-    print(envname)
+def getEnvName(datalist, x):
+    envname = datalist[x]['name']
+    # print(envname)
     return envname
 
 def getEnvValuesList(valeslist):
 
     envvaluesList = valeslist[0]['indicatorList']
-    listornot = type(envvaluesList)
-    print(listornot)
+    # listornot = type(envvaluesList)
+    # print(listornot)
     return envvaluesList
 
+def whitchtype(data):
+    datawhitchtype = data
+    print(datawhitchtype)
+    whitchtype = type(datawhitchtype)
+    print(whitchtype)
 
+def getEnvvalues(valueslist):
+    whitchtype(valueslist)
+    wworkbook = workbook.add_sheet('Temperture', cell_overwrite_ok=True)
+    d = [ ]
+    i = 1
+    for x in range(len(envvalueslist)):
+        j = 0
+        envvalueslistdict = envvalueslist[x]
+        # whitchtype(envvalueslistdict)
+        envvalueslistdict.items()
+        # whitchtype(envvalueslistdict.items())
+        # print(len(envvalueslistdict.items()))
+        for key, value  in envvalueslistdict.items():
+            wworkbook.write(i, j , key)
+            wworkbook.write(i, j+1 , value)
+            # print(key)
+            # print(value)
+            j += 2
+        i += 1
+    workbook.save(r'E:\env.xls')
 
-# def getEnvTittle(valueslist):
-#     d = [ ]
-#     for x in range(len(envvalueslist)):
-#         envvalueslistjson = envvalueslist[x]
-#         # namelist = envvalueslist.keys()
-#         # d[x] = str(decoded_json['name'])
-#         decoded_json = json.loads(envvalueslistjson)
-#         print(type(decoded_json))
-#         print(d[x])
-
-workbook.save(r'E:\env.xls')
-
-
+        # namelist = envvalueslist.keys()
+        # d[x] = str(decoded_json['name'])
 
 
 envdata = getData()
-envname = getEnvName(envdata)
+envname = getEnvName(envdata, 1)
+print(envname)
 envvalueslist = getEnvValuesList(envdata)
-# getEnvTittle(envvalueslist)
-abc = envvalueslist[0]
-print(abc)
-ornot = type(abc)
-decoded_json = json.loads(abc)
+getEnvvalues(envvalueslist)
 
-print(ornot)
+
 
 
 # # 做参考
