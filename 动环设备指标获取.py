@@ -10,11 +10,17 @@ rworkbook = xlrd.open_workbook('E:\env.xls')
 wworkbook = workbook.add_sheet('Temperture', cell_overwrite_ok=True)
 # 表第一个单元
 # 请求指标
-def getData():
-    envurl = 'http://172.17.13.96:16380/envDevice/getEnvIndicatorByMonitorDeviceIds'
-    res = requests.post(envurl, data= {"type":"1,2"})
+urlList = [' http://172.17.13.96:16380/envDevice/getEnvIndicatorByMonitorDeviceIds', ' http://172.17.13.92:16380/envDevice/getEnvIndicatorByMonitorDeviceIds']
+
+ListNotNull = True
+
+
+def getData(urlnum):
+    envurl = urlList[urlnum]
+    print('请求第次', str(urlnum))
+    res = requests.post(envurl, data={"type": "1,2"})
     resdatalist = res.json()['data']
-    print(resdatalist)
+    # print(resdatalist)
     return resdatalist
 
 def getEnvName(datalist, x):
@@ -35,39 +41,50 @@ def whitchtype(data):
     print(whitchtype)
 
 def getEnvvalues(valueslist, line):
-    whitchtype(valueslist)
+    # whitchtype(valueslist)
     # d = [ ]
-    i = line
-    j = 0
+    i = line +1
+    j = 1
     for x in range(len(envvalueslist)):
         envvalueslistdict = envvalueslist[x]
-        # whitchtype(envvalueslistdict)
         envvalueslistdict.items()
-        # whitchtype(envvalueslistdict.items())
-        # print(len(envvalueslistdict.items()))
         for key, value  in envvalueslistdict.items():
-            wworkbook.write(i, j , key)
-            wworkbook.write(i, j+1 , value)
+            # wworkbook.write(i, j , key)
+            writeToExcel(key,i, j)
+            writeToExcel(value, i, j+1)
+            # wworkbook.write(i, j+1 , value)
             # print(key)
             # print(value)
             j += 2
         j += 1
 
+def writeToExcel(obj, row ,col):
+    wworkbook.write(row, col, obj)
 
-        # namelist = envvalueslist.keys()
-        # d[x] = str(decoded_json['name'])
+lisrnum = 0
+# envdata = getData(lisrnum)
+envdata = getData(lisrnum)
 
+while ListNotNull:
+    # list是空的问题先不考虑
+    flag = 0
+    for i in range(len(envdata)):
+        envData = envdata
+        wenvname = getEnvName(envData, i)
+        writeToExcel(wenvname , 0 , 0)
+        envvalueslist = getEnvValuesList(envData, i)
+        print(envvalueslist)
+        getEnvvalues(envvalueslist, i)
+        flag += 1
+        if flag == int(len(envvalueslist)):
+            print('envvalueslist取完了')
+    lisrnum += 1
+    if i == int(len(envdata) - 1):
+        print('循环完了')
+        ListNotNull = False
+    else:
+        ListNotNull = True
 
-envdata = getData()
-# envname = getEnvName(envdata, 0)
-# print(envname)
-
-for i in range(len(envdata)):
-    wenvname = getEnvName(envdata , i)
-
-    envvalueslist = getEnvValuesList(envdata , i)
-    getEnvvalues(envvalueslist , i)
-    print(envvalueslist)
 
 workbook.save(r'E:\env.xls')
 
